@@ -2,6 +2,8 @@
 Installs kubectl in a Kubernetes Pod
 
 kubectl create deployment k8s-ctl --image=nginx --replicas=1 --port=80 --dry-run=client -o yaml > k8s-ctl.yaml
+kubectl apply -f  k8s-ctl.yaml
+kubectl get deploy,po
 
 ```sh
 apiVersion: apps/v1
