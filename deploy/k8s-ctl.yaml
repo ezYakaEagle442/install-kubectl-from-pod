@@ -23,9 +23,9 @@ spec:
         volumeMounts:
         - name: kubectl
           mountPath: /data
-        command: ["cp", "/usr/local/bin/kubectl", "/data/kubectl"]    
+        command: ["cp", "/usr/local/bin/kubectl", "kubectl"]    
       containers:
-      - image: nginx
+      - image: pinpindock/k8s-ctl
         name: nginx
         ports:
         - containerPort: 1025

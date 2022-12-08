@@ -25,7 +25,7 @@ spec:
           mountPath: /data
         command: ["cp", "/usr/local/bin/kubectl", "kubectl"]    
       containers:
-      - image: pinpindock/k8s-ctl
+      - image: pinpindock/k8s-ctl # https://hub.docker.com/r/pinpindock/k8s-ctl
         name: nginx
         ports:
         - containerPort: ${NGINX_PORT}
