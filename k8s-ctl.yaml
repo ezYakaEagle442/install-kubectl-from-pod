@@ -23,13 +23,22 @@ spec:
         volumeMounts:
         - name: kubectl
           mountPath: /data
-        command: ["cp", "/usr/local/bin/kubectl", "/data/kubectl"]    
+        command: ["cp", "/usr/local/bin/kubectl", "kubectl"]    
       containers:
-      - image: nginx
+      - image: pinpindock/k8s-ctl
         name: nginx
+        ports:
+        - containerPort: ${NGINX_PORT}
+        # https://kubernetes.io/docs/tasks/inject-data-application/define-environment-variable-container/
+        #env:
+        #- name: NGINX_PORT
+        #  value: 1025
+        #- name: NGINX_PORT
+        #  valueFrom:
+        #    configMapKeyRef:
+        #      name: cm-cfg
+        #      key: nginx.port
         volumeMounts:
         - name: kubectl
           subPath: kubectl
-          mountPath: /usr/local/bin/kubectl        
-        ports:
-        - containerPort: 80
+          mountPath: /usr/local/bin/kubectl
