@@ -8,27 +8,39 @@ Installs kubectl in a Kubernetes Pod
 export NGINX_PORT=1025
 # https://nginx.org/en/docs/faq/variables_in_config.html
 export NGINX_PORT=${NGINX_PORT}
-envsubst < nginx.conf > deploy/nginx.conf
+envsubst < Dockerfile > deploy/Dockerfile
 envsubst < k8s-ctl.yaml > deploy/k8s-ctl.yaml
 envsubst < nginx_svc.yaml > deploy/nginx_svc.yaml
 
-docker build --build-arg --no-cache -t "k8s-ctl" -f Dockerfile .
+# envsubst < nginx.conf > deploy/nginx.conf
+cp nginx.conf deploy/nginx.conf
+sed -i "s/\$NGINX_PORT/$NGINX_PORT/g" "deploy/nginx.conf"
+
+docker build --build-arg --no-cache -t "k8s-ctl" -f deploy/Dockerfile .
+docker image ls
+docker run -it -p ${NGINX_PORT}:${NGINX_PORT} --env NGINX_PORT=${NGINX_PORT} k8s-ctl
+docker inspect k8s-ctl '{{ ..[0].Config.ExposedPorts }}'
+docker container ls
+
 docker login -u "myusername" -p "mypassword" docker.io
 docker tag k8s-ctl "myusername"/k8s-ctl
-docker push "myusername"/k8s-ctl
+docker push "myusername"/k8s-ctl # https://hub.docker.com/r/pinpindock/k8s-ctl
 
 #docker tag k8s-ctl acrfootoo.azurecr.io/k8s-ctl
 #az acr login --name acrfoototo.azurecr.io -u $acr_usr -p $acr_pwd
 #docker push acrfoototo.azurecr.io/k8s-ctl
 #docker pull acrfoototo.azurecr.io/k8s-ctl
 
-docker image ls
-docker run -it -p 1025:1025 --env NGINX_PORT=1025 k8s-ctl
-docker container ls
+
 ```
 
 Test from inside the container or from your browser
 ```sh
+
+nginx -t
+cat /etc/nginx/nginx.conf
+nginx -s reload
+
 curl -X GET http://localhost:1025/index.html
 curl -X GET http://host.docker.internal:1025/index.html
 curl -X GET http://127.0.0.1:1025/index.html
@@ -48,15 +60,15 @@ kubectl create service clusterip nginx --tcp=${NGINX_PORT}:${NGINX_PORT} --dry-r
 # https://kubernetes.io/docs/concepts/services-networking/service/#environment-variables
 kubectl apply -f deploy/nginx_svc.yaml
 
-# kubectl create deployment k8s-ctl --image=nginx --replicas=1 --port=80 --dry-run=client -o yaml > k8s-ctl.yaml
-kubectl create configmap cm-cfg --from-literal=nginx.port=${NGINX_PORT}
-kubectl describe cm cm-cfg
+#kubectl create deployment k8s-ctl --image=nginx --replicas=1 --port=80 --dry-run=client -o yaml > k8s-ctl.yaml
+#kubectl create configmap cm-cfg --from-literal=nginx.port=${NGINX_PORT}
+#kubectl describe cm cm-cfg
 kubectl apply -f deploy/k8s-ctl.yaml
-kubectl get deploy,po
+kubectl get po,deploy
+kubectl describe deploy k8s-ctl
 
 # https://www.jsonquerytool.com/
 podname=$(kubectl get po -l app=k8s-ctl -o=jsonpath={.items..metadata.name})
-kubectl describe po $podname
 podip=$(kubectl get po -l app=k8s-ctl -o=jsonpath={.items[0].status.podIP})
 podport=$(kubectl get po -l app=k8s-ctl -o=jsonpath={.items[0].spec.containers[0].ports[0].containerPort})
 
@@ -64,13 +76,23 @@ echo "podname=$podname"
 echo "podip=$podip"
 echo "podport=$podport"
 
+kubectl describe po $podname
+
+
 kubectl exec -it $podname -- sh
 ```
 
 Test from inside the container :
 ```sh
+# https://docs.nginx.com/nginx/admin-guide/monitoring/debugging/
+service nginx status
+# service nginx start
+# service nginx stop
+# service nginx stop && service nginx-debug start
 
 nginx -t
+cat /etc/nginx/nginx.conf
+nginx -s reload
 #nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
 #nginx: configuration file /etc/nginx/nginx.conf test is successful
 
@@ -160,13 +182,13 @@ https://learn.microsoft.com/en-us/azure/spring-apps/how-to-deploy-with-custom-co
 az spring app deploy \
    --resource-group rg-iac-asa-petclinic-mic-srv \
    --name k8s-ctl \
+   --env NGINX_PORT=1025 \
    --container-image pinpindock/k8s-ctl \
    --service asa-petcliasa \
    --disable-probe true \
    --language-framework "" \
-   --disable-validation true \
-   --container-command /bin/sh \
-   --debug
+   --disable-validation true
+   # --container-command /bin/sh
 
 az spring app logs --name k8s-ctl -s asa-petcliasa -g rg-iac-asa-petclinic-mic-srv
 
