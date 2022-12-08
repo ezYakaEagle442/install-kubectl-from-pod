@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: k8s-ctl
+  name: k8s-ctl
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: k8s-ctl
+  template:
+    metadata:
+      labels:
+        app: k8s-ctl
+    spec:
+      volumes:
+      - name: kubectl
+        emptyDir: {}
+      initContainers:
+      - name: k8s-ctl
+        image: pinpindock/k8s-ctl
+        volumeMounts:
+        - name: kubectl
+          mountPath: /data
+        command: ["cp", "/usr/local/bin/kubectl", "/data/kubectl"]    
+      containers:
+      - image: nginx
+        name: nginx
+        ports:
+        - containerPort: 1025
+        # https://kubernetes.io/docs/tasks/inject-data-application/define-environment-variable-container/
+        #env:
+        #- name: NGINX_PORT
+        #  value: 1025
+        #- name: NGINX_PORT
+        #  valueFrom:
+        #    configMapKeyRef:
+        #      name: cm-cfg
+        #      key: nginx.port
+        volumeMounts:
+        - name: kubectl
+          subPath: kubectl
+          mountPath: /usr/local/bin/kubectl
