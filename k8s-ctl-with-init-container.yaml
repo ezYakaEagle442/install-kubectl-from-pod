@@ -1,0 +1,61 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: k8s-ctl
+  name: k8s-ctl
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: k8s-ctl
+  template:
+    metadata:
+      labels:
+        app: k8s-ctl
+    spec:
+
+      volumes:
+      - name: kubectl
+        emptyDir: {}
+      - name: shared-data
+        emptyDir: {}        
+      - name: helm
+        emptyDir: {}   
+
+      initContainers:
+      - name: init
+        image: pinpindock/k8s-ctl
+        volumeMounts:
+        - name: kubectl
+          mountPath: /data
+        # command: ["cp", "/usr/local/bin/kubectl", "/data/kubectl"]
+        command: ["/bin/sh"]
+        args: ["-c", "cp; /usr/local/bin/kubectl; /data/kubectl; cp; /usr/local/bin/helm; /data/helm; cp; /usr/share/nginx/html/index2.html; /shared-data/index2.html; cp; /usr/share/nginx/html/demo-index.html ; /shared-data/demo-index.html; cp; /etc/nginx/nginx.conf; /shared-data/nginx.conf"]
+
+      containers:
+      - image: nginx # https://hub.docker.com/r/pinpindock/k8s-ctl
+        name: k8s-ctl
+        ports:
+        - containerPort: ${NGINX_PORT}
+        # https://kubernetes.io/docs/tasks/inject-data-application/define-environment-variable-container/
+        #env:
+        #- name: NGINX_PORT
+        #  value: 1025
+        #- name: NGINX_PORT
+        #  valueFrom:
+        #    configMapKeyRef:
+        #      name: cm-cfg
+        #      key: nginx.port
+        volumeMounts:
+        - name: kubectl
+          subPath: kubectl
+          mountPath: /usr/local/bin/kubectl
+
+        - name: shared-data
+          mountPath: /usr/share/nginx/html
+
+        - name: helm
+          mountPath: /usr/local/bin
+
+      #hostNetwork: true
