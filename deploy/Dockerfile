@@ -5,7 +5,7 @@
 # docker push pinpindock/k8s-ctl
 
 # docker tag k8s-ctl acrfootoo.azurecr.io/k8s-ctl
-# az acr login --name acrfoototo.azurecr.io -u $acr_usr -p $acr_pwd
+# az acr login --name acrfoototo.azurecr.io -u  -p 
 # docker push acrfoototo.azurecr.io/k8s-ctl
 # docker pull acrfoototo.azurecr.io/k8s-ctl
 
@@ -64,5 +64,5 @@ RUN helm version
 
 # https://stackoverflow.com/questions/40358923/docker-nginx-disable-default-exposed-port-80
 # https://github.com/nginxinc/docker-nginx/blob/master/stable/debian/Dockerfile
-EXPOSE ${NGINX_PORT}
+EXPOSE 1025
 CMD ["nginx", "-g", "daemon off;"]

@@ -1,0 +1,235 @@
+{
+    "apiVersion": "v1",
+    "items": [
+        {
+            "apiVersion": "v1",
+            "kind": "Pod",
+            "metadata": {
+                "creationTimestamp": "2022-12-08T14:36:11Z",
+                "generateName": "k8s-ctl-58ccdd46c5-",
+                "labels": {
+                    "app": "k8s-ctl",
+                    "pod-template-hash": "58ccdd46c5"
+                },
+                "name": "k8s-ctl-58ccdd46c5-mb2tc",
+                "namespace": "default",
+                "ownerReferences": [
+                    {
+                        "apiVersion": "apps/v1",
+                        "blockOwnerDeletion": true,
+                        "controller": true,
+                        "kind": "ReplicaSet",
+                        "name": "k8s-ctl-58ccdd46c5",
+                        "uid": "def06f9c-df58-4a36-ae55-a67a799f291a"
+                    }
+                ],
+                "resourceVersion": "468978",
+                "uid": "3d92f33e-c896-43bf-8d17-d668ce57d96f"
+            },
+            "spec": {
+                "containers": [
+                    {
+                        "image": "nginx",
+                        "imagePullPolicy": "Always",
+                        "name": "nginx",
+                        "ports": [
+                            {
+                                "containerPort": 1025,
+                                "protocol": "TCP"
+                            }
+                        ],
+                        "resources": {},
+                        "terminationMessagePath": "/dev/termination-log",
+                        "terminationMessagePolicy": "File",
+                        "volumeMounts": [
+                            {
+                                "mountPath": "/usr/local/bin/kubectl",
+                                "name": "kubectl",
+                                "subPath": "kubectl"
+                            },
+                            {
+                                "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount",
+                                "name": "kube-api-access-spbcl",
+                                "readOnly": true
+                            }
+                        ]
+                    }
+                ],
+                "dnsPolicy": "ClusterFirst",
+                "enableServiceLinks": true,
+                "initContainers": [
+                    {
+                        "command": [
+                            "cp",
+                            "/usr/local/bin/kubectl",
+                            "/data/kubectl"
+                        ],
+                        "image": "pinpindock/k8s-ctl",
+                        "imagePullPolicy": "Always",
+                        "name": "k8s-ctl",
+                        "resources": {},
+                        "terminationMessagePath": "/dev/termination-log",
+                        "terminationMessagePolicy": "File",
+                        "volumeMounts": [
+                            {
+                                "mountPath": "/data",
+                                "name": "kubectl"
+                            },
+                            {
+                                "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount",
+                                "name": "kube-api-access-spbcl",
+                                "readOnly": true
+                            }
+                        ]
+                    }
+                ],
+                "nodeName": "aks-agentpool-20957262-vmss000001",
+                "preemptionPolicy": "PreemptLowerPriority",
+                "priority": 0,
+                "restartPolicy": "Always",
+                "schedulerName": "default-scheduler",
+                "securityContext": {},
+                "serviceAccount": "default",
+                "serviceAccountName": "default",
+                "terminationGracePeriodSeconds": 30,
+                "tolerations": [
+                    {
+                        "effect": "NoExecute",
+                        "key": "node.kubernetes.io/not-ready",
+                        "operator": "Exists",
+                        "tolerationSeconds": 300
+                    },
+                    {
+                        "effect": "NoExecute",
+                        "key": "node.kubernetes.io/unreachable",
+                        "operator": "Exists",
+                        "tolerationSeconds": 300
+                    }
+                ],
+                "volumes": [
+                    {
+                        "emptyDir": {},
+                        "name": "kubectl"
+                    },
+                    {
+                        "name": "kube-api-access-spbcl",
+                        "projected": {
+                            "defaultMode": 420,
+                            "sources": [
+                                {
+                                    "serviceAccountToken": {
+                                        "expirationSeconds": 3607,
+                                        "path": "token"
+                                    }
+                                },
+                                {
+                                    "configMap": {
+                                        "items": [
+                                            {
+                                                "key": "ca.crt",
+                                                "path": "ca.crt"
+                                            }
+                                        ],
+                                        "name": "kube-root-ca.crt"
+                                    }
+                                },
+                                {
+                                    "downwardAPI": {
+                                        "items": [
+                                            {
+                                                "fieldRef": {
+                                                    "apiVersion": "v1",
+                                                    "fieldPath": "metadata.namespace"
+                                                },
+                                                "path": "namespace"
+                                            }
+                                        ]
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                ]
+            },
+            "status": {
+                "conditions": [
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2022-12-08T14:36:44Z",
+                        "status": "True",
+                        "type": "Initialized"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2022-12-08T14:36:47Z",
+                        "status": "True",
+                        "type": "Ready"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2022-12-08T14:36:47Z",
+                        "status": "True",
+                        "type": "ContainersReady"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2022-12-08T14:36:11Z",
+                        "status": "True",
+                        "type": "PodScheduled"
+                    }
+                ],
+                "containerStatuses": [
+                    {
+                        "containerID": "containerd://8eb11b2012b59f239dd4ba8b11ac556f0c9fa39c53fe3a5ce92d20a7cf2abc11",
+                        "image": "docker.io/library/nginx:latest",
+                        "imageID": "docker.io/library/nginx@sha256:ab589a3c466e347b1c0573be23356676df90cd7ce2dbf6ec332a5f0a8b5e59db",
+                        "lastState": {},
+                        "name": "nginx",
+                        "ready": true,
+                        "restartCount": 0,
+                        "started": true,
+                        "state": {
+                            "running": {
+                                "startedAt": "2022-12-08T14:36:46Z"
+                            }
+                        }
+                    }
+                ],
+                "hostIP": "10.2.0.114",
+                "initContainerStatuses": [
+                    {
+                        "containerID": "containerd://79186d699c654528d9ffe0fcd48a436410df93380ddac1155056b469b20059e0",
+                        "image": "docker.io/pinpindock/k8s-ctl:latest",
+                        "imageID": "docker.io/pinpindock/k8s-ctl@sha256:6261a7a83ea1bcbdf3da04278860df38cc181e8d4f482ddcbbfa70f3bebfb99d",
+                        "lastState": {},
+                        "name": "k8s-ctl",
+                        "ready": true,
+                        "restartCount": 0,
+                        "state": {
+                            "terminated": {
+                                "containerID": "containerd://79186d699c654528d9ffe0fcd48a436410df93380ddac1155056b469b20059e0",
+                                "exitCode": 0,
+                                "finishedAt": "2022-12-08T14:36:42Z",
+                                "reason": "Completed",
+                                "startedAt": "2022-12-08T14:36:42Z"
+                            }
+                        }
+                    }
+                ],
+                "phase": "Running",
+                "podIP": "10.2.0.190",
+                "podIPs": [
+                    {
+                        "ip": "10.2.0.190"
+                    }
+                ],
+                "qosClass": "BestEffort",
+                "startTime": "2022-12-08T14:36:11Z"
+            }
+        }
+    ],
+    "kind": "List",
+    "metadata": {
+        "resourceVersion": ""
+    }
+}
