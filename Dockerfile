@@ -10,7 +10,7 @@
 # docker pull acrfoototo.azurecr.io/k8s-ctl
 
 # docker image ls
-# docker run -it -p 8042:80 k8s-ctl
+# docker run -it -p 8042:80 -p 1025:1025 k8s-ctl
 # docker container ls
 # docker ps
 # docker exec -it b177880414c5 /bin/sh
@@ -23,6 +23,12 @@ LABEL Maintainer="pinpin <noname@microsoft.com>"
 LABEL Description="Pod installed with Kubectl - see Dockerfile at https://github.com/ezYakaEagle442/install-kubectl-from-pod/blob/main/Dockerfile"
 
 RUN mkdir /tmp/app
+
+COPY index2.html /usr/share/nginx/html
+COPY demo-index.html /usr/share/nginx/html
+COPY deploy/nginx.conf /etc/nginx/
+#COPY /etc/nginx/conf.d/default.conf /etc/nginx/conf.d/default.conf.back
+#COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 # https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/
 #RUN curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
@@ -45,5 +51,6 @@ RUN ./get_helm.sh
 RUN helm version
 # helm installed into /usr/local/bin/helm
 
-EXPOSE 80 8080
+RUN echo exposing NGINX_PORT ${NGINX_PORT}
+EXPOSE ${NGINX_PORT}
 CMD ["/bin/sh"]
