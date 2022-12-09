@@ -1,9 +1,9 @@
-# install-kubectl-from-pod
-Installs kubectl in a Kubernetes Pod
+# Installs kubectl in a Kubernetes Pod from Nginx Image
 
 
 ## Docker Build
 
+## Set Environment variables and Config files
 ```sh
 export NGINX_PORT=1025
 # https://nginx.org/en/docs/faq/variables_in_config.html
@@ -15,26 +15,30 @@ envsubst < nginx_svc.yaml > deploy/nginx_svc.yaml
 # envsubst < nginx.conf > deploy/nginx.conf
 cp nginx.conf deploy/nginx.conf
 sed -i "s/\$NGINX_PORT/$NGINX_PORT/g" "deploy/nginx.conf"
+```
+
+## Docker Build
+```sh
+# https://hub.docker.com/r/nginxinc/nginx-unprivileged
+# docker pull nginxinc/nginx-unprivileged
+
+# https://github.com/docker/compose/issues/8449
+# failed to solve with frontend dockerfile.v0: failed to create LLB definition: pull access denied, repository does not exist or may require authorization: server message: insufficient_scope: authorization failed
+# pull access denied for nginx-unprivileged, repository does not exist or may require 'docker login': denied: requested access to the resource is denied
+export DOCKER_BUILDKIT=0
+export COMPOSE_DOCKER_CLI_BUILD=0
+# https://github.com/docker/buildx/issues/680
+# sudo systemctl restart docker
+sudo service docker restart # from WSL
 
 docker build --build-arg --no-cache -t "k8s-ctl" -f deploy/Dockerfile .
 docker image ls
 docker run -it -p ${NGINX_PORT}:${NGINX_PORT} --env NGINX_PORT=${NGINX_PORT} k8s-ctl
 docker inspect k8s-ctl '{{ ..[0].Config.ExposedPorts }}'
 docker container ls
-
-docker login -u "myusername" -p "mypassword" docker.io
-docker tag k8s-ctl "myusername"/k8s-ctl
-docker push "myusername"/k8s-ctl # https://hub.docker.com/r/pinpindock/k8s-ctl
-
-#docker tag k8s-ctl acrfootoo.azurecr.io/k8s-ctl
-#az acr login --name acrfoototo.azurecr.io -u $acr_usr -p $acr_pwd
-#docker push acrfoototo.azurecr.io/k8s-ctl
-#docker pull acrfoototo.azurecr.io/k8s-ctl
-
-
 ```
 
-Test from inside the container or from your browser
+## Test from inside the container or from your browser
 ```sh
 
 nginx -t
@@ -45,11 +49,23 @@ curl -X GET http://localhost:1025/index.html
 curl -X GET http://host.docker.internal:1025/index.html
 curl -X GET http://127.0.0.1:1025/index.html
 
-curl -X GET http://10.2.0.96:1025
-
 curl -X GET http://host.docker.internal:1025/index2.html
 curl -X GET http://host.docker.internal:1025/demo-index.html
 ```
+
+
+## Docker Push
+```sh
+docker login -u "myusername" -p "mypassword" docker.io
+docker tag k8s-ctl "myusername"/k8s-ctl
+docker push "myusername"/k8s-ctl # https://hub.docker.com/r/pinpindock/k8s-ctl
+
+#docker tag k8s-ctl acrfootoo.azurecr.io/k8s-ctl
+#az acr login --name acrfoototo.azurecr.io -u $acr_usr -p $acr_pwd
+#docker push acrfoototo.azurecr.io/k8s-ctl
+#docker pull acrfoototo.azurecr.io/k8s-ctl
+```
+
 
 ## Deploy to K8S
 
