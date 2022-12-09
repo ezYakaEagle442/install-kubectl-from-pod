@@ -19,7 +19,9 @@
 # docker images --filter reference=petclinic-admin-server --format "{{.Tag}}"
 
 # https://hub.docker.com/_/nginx/
-FROM nginx
+# https://hub.docker.com/r/nginxinc/nginx-unprivileged
+# https://github.com/nginxinc/docker-nginx-unprivileged/blob/main/stable/debian/Dockerfile
+FROM nginx-unprivileged
 
 LABEL Maintainer="pinpin <noname@microsoft.com>"
 LABEL Description="Pod installed with Kubectl - see Dockerfile at https://github.com/ezYakaEagle442/install-kubectl-from-pod/blob/main/Dockerfile"
