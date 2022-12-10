@@ -21,6 +21,7 @@
 # https://mcr.microsoft.com/en-us/product/azure-cli/about
 # FROM mcr.microsoft.com/azure-cli:latest 
 
+# https://docs.github.com/en/actions/using-github-hosted-runners/about-github-hosted-runners#using-a-github-hosted-runner
 FROM ubuntu:20.04 as builder
 
 LABEL Maintainer="pinpin <noname@microsoft.com>"
