@@ -34,8 +34,17 @@ spec:
 
       containers:
       - name: k8s-ctl
-        image: pinpindock/k8s-ctl # https://hub.docker.com/r/pinpindock/k8s-ctl
+        image: pinpindock/self-hosted-runnner # https://hub.docker.com/r/pinpindock/k8s-ctl
         command: ['sh', '-c', 'i=0; while true; do echo "$i: $(date)"; i=$((i+1)); sleep 3600; done']
+        env:
+        - name: OWNER
+          value: "$OWNER"
+        - name: REPO
+          value: "$REPO"
+        - name: NAME
+          value: "$NAME"
+        - name: TOKEN
+          value: "$TOKEN"               
         ports:
         - containerPort: ${APP_PORT}
         volumeMounts:
