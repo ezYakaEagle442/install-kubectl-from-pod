@@ -13,26 +13,8 @@ envsubst < k8s-ctl_svc.yaml > deploy/k8s-ctl_svc.yaml
 ```
 
 ## Docker Build
-```sh
 
-docker build --build-arg --no-cache -t "k8s-ctl" -f deploy/Dockerfile .
-docker image ls
-docker run -it -p ${APP_PORT}:${APP_PORT} --env APP_PORT=${APP_PORT} k8s-ctl
-docker inspect k8s-ctl '{{ ..[0].Config.ExposedPorts }}'
-docker container ls
-```
-
-## Test from inside the container or from your browser
-```sh
-az version
-java --version
-mvn --version
-kubectl version
-jq --version
-helm version
-git --version
-```
-
+Run manually the GHA Workflow from [https://github.com/ezYakaEagle442/install-kubectl-from-pod/actions/workflows/build-container-image.yaml](https://github.com/ezYakaEagle442/install-kubectl-from-pod/actions/workflows/build-container-image.yaml)
 
 
 ## Deploy to K8S
@@ -72,9 +54,6 @@ kubectl create service clusterip k8s-ctl --tcp=${APP_PORT}:${APP_PORT} --dry-run
 # https://kubernetes.io/docs/concepts/services-networking/service/#environment-variables
 kubectl apply -f deploy/k8s-ctl_svc.yaml
 
-#kubectl create deployment k8s-ctl --image=k8s-ctl --replicas=1 --port=80 --dry-run=client -o yaml > k8s-ctl_deployment
-#kubectl create configmap cm-cfg --from-literal=k8s-ctl.port=${APP_PORT}
-#kubectl describe cm cm-cfg
 kubectl apply -f deploy/k8s-ctl_deployment
 kubectl get po,deploy
 kubectl describe deploy k8s-ctl
@@ -94,9 +73,15 @@ kubectl exec -it $podname -- sh
 
 Test from inside the container :
 ```sh
-x
-x
-x
+az version
+java --version
+mvn --version
+kubectl version
+jq --version
+helm version
+git --version
+whoami
+uname -a
 ```
 
 
