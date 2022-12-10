@@ -22,7 +22,7 @@
 # FROM mcr.microsoft.com/azure-cli:latest 
 
 # https://docs.github.com/en/actions/using-github-hosted-runners/about-github-hosted-runners#using-a-github-hosted-runner
-FROM ubuntu:20.04 as builder
+FROM ubuntu:20.04
 
 LABEL Maintainer="pinpin <noname@microsoft.com>"
 LABEL Description="Pod installed with Kubectl - see Dockerfile at https://github.com/ezYakaEagle442/install-kubectl-from-pod/blob/main/Dockerfile"
