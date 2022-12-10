@@ -1,6 +1,7 @@
 prv/*
 deploy/*
 cnf/*
+gha-scripts/*
 
 # Maven
 target/
