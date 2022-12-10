@@ -1,0 +1,26 @@
+name: Build Container Image CI
+
+env:
+  DOCKER_LOGIN: pinpindock
+
+  # ==== Secrets ====
+  PASSWD: ${{ secrets.DOCKER_PASSWORD }}
+
+
+on:
+  workflow_dispatch:
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Build the Docker image
+      run: docker build . --file Dockerfile --tag self-hosted-runnner:latest
+    - run: docker images
+    - run: docker login --username"=${{ env.DOCKER_LOGIN }}" -p="${{ secrets.DOCKER_PASSWORD }}"
+    - run: docker tag self-hosted-runnner:latest ${{ env.DOCKER_LOGIN }}/self-hosted-runnner:latest
+    - run: docker push ${{ env.DOCKER_LOGIN }}/self-hosted-runnner:latest

@@ -10,61 +10,43 @@
 # docker pull acrfoototo.azurecr.io/k8s-ctl
 
 # docker image ls
-# docker run -it -p 1025:1025 k8s-ctl
+# docker run -it -p 4242:4242 k8s-ctl
 # docker container ls
 # docker ps
 # docker exec -it b177880414c5 /bin/sh
 # docker inspect --format '{{ .NetworkSettings.Networks.bridge.IPAddress }}' <container>
 # docker inspect k8s-ctl  '{{ ..[0].Config.ExposedPorts }}'
-# docker images --filter reference=petclinic-admin-server --format "{{.Tag}}"
+# docker images --filter reference=k8s-ctl --format "{{.Tag}}"
 
-# https://hub.docker.com/_/nginx/
-# https://hub.docker.com/r/nginxinc/nginx-unprivileged
-# https://github.com/nginxinc/docker-nginx-unprivileged/blob/main/stable/debian/Dockerfile
-FROM nginx-unprivileged
+# https://mcr.microsoft.com/en-us/product/azure-cli/about
+# FROM mcr.microsoft.com/azure-cli:latest 
+
+FROM ubuntu:20.04 as builder
 
 LABEL Maintainer="pinpin <noname@microsoft.com>"
 LABEL Description="Pod installed with Kubectl - see Dockerfile at https://github.com/ezYakaEagle442/install-kubectl-from-pod/blob/main/Dockerfile"
 
-RUN mkdir /tmp/app
+# https://github.com/actions/runner-images/blob/main/images/linux/Ubuntu2004-Readme.md
+# https://github.com/actions/runner/tags/
+ENV RUNNER_VERSION=2.299.1
 
-#http://nginx.org/en/docs/beginners_guide.html
-# By default, the configuration file is named nginx.conf and placed in the directory 
-# /usr/local/nginx/conf, /etc/nginx, or /usr/local/etc/nginx.
+RUN useradd -m actions
+RUN apt-get -yqq update && apt-get install -yqq curl jq wget
 
-# /§\ DEFAULT_CONF_FILE="/etc/nginx/conf.d/default.conf"
-COPY index2.html /usr/share/nginx/html
-COPY dashboard.html /usr/share/nginx/html
-COPY demo-index.html /usr/share/nginx/html
-COPY deploy/nginx.conf /etc/nginx/
-COPY deploy/nginx.conf /etc/nginx/conf.d/default.conf
-#COPY /etc/nginx/conf.d/default.conf /etc/nginx/conf.d/default.conf.back
-#COPY nginx.conf /etc/nginx/conf.d/default.conf
-RUN mkdir /tmp/nginx
-RUN touch /tmp/nginx/nginx.pid
+RUN \
+  LABEL="$(curl -s -X GET 'https://api.github.com/repos/actions/runner/releases/latest' | jq -r '.tag_name')" \
+  RUNNER_VERSION="$(echo ${latest_version_label:1})" \
+  cd /home/actions && mkdir actions-runner && cd actions-runner \
+    && wget https://github.com/actions/runner/releases/download/v${RUNNER_VERSION}/actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz \
+    && tar xzf ./actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz
 
-# https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/
-#RUN curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
-#RUN curl -LO "https://dl.k8s.io/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl.sha256"
-#RUN echo "$(cat kubectl.sha256)  kubectl" | sha256sum --check
+WORKDIR /home/actions/actions-runner
+RUN chown -R actions ~actions && /home/actions/actions-runner/bin/installdependencies.sh
 
-COPY "kubectl" "/usr/local/bin/kubectl"
-RUN chmod +x "/usr/local/bin/kubectl"
-RUN kubectl version --client
-# /usr/local/bin/kubectl
+COPY entrypoint.sh .
+RUN chmod +x entrypoint.sh
+USER actions
 
-# https://docs.microsoft.com/en-us/cli/azure/install-azure-cli-apt?view=azure-cli-latest
-RUN curl -sL https://aka.ms/InstallAzureCLIDeb | bash
-
-# https://helm.sh/docs/intro/install/
-# https://git.io/get_helm.sh
-RUN curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3
-RUN chmod 700 get_helm.sh
-RUN ./get_helm.sh
-RUN helm version
-# helm installed into /usr/local/bin/helm
-
-# https://stackoverflow.com/questions/40358923/docker-nginx-disable-default-exposed-port-80
-# https://github.com/nginxinc/docker-nginx/blob/master/stable/debian/Dockerfile
-EXPOSE ${NGINX_PORT}
-CMD ["nginx", "-g", "daemon off;"]
+# EXPOSE ${APP_PORT}
+# CMD ["bash"]
+ENTRYPOINT ["./entrypoint.sh"]

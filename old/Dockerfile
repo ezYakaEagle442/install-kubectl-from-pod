@@ -5,7 +5,7 @@
 # docker push pinpindock/k8s-ctl
 
 # docker tag k8s-ctl acrfootoo.azurecr.io/k8s-ctl
-# az acr login --name acrfoototo.azurecr.io -u  -p 
+# az acr login --name acrfoototo.azurecr.io -u $acr_usr -p $acr_pwd
 # docker push acrfoototo.azurecr.io/k8s-ctl
 # docker pull acrfoototo.azurecr.io/k8s-ctl
 
@@ -16,12 +16,15 @@
 # docker exec -it b177880414c5 /bin/sh
 # docker inspect --format '{{ .NetworkSettings.Networks.bridge.IPAddress }}' <container>
 # docker inspect k8s-ctl  '{{ ..[0].Config.ExposedPorts }}'
-# docker images --filter reference=petclinic-admin-server --format "{{.Tag}}"
+# docker images --filter reference=nginx-unprivileged --format "{{.Tag}}"
 
 # https://hub.docker.com/_/nginx/
 # https://hub.docker.com/r/nginxinc/nginx-unprivileged
 # https://github.com/nginxinc/docker-nginx-unprivileged/blob/main/stable/debian/Dockerfile
-FROM nginx-unprivileged
+
+# https://github.com/nginxinc/docker-nginx-unprivileged/pkgs/container/nginx-unprivileged/56194842?tag=latest
+# nginx-unprivileged:latest-amd64
+FROM ghcr.io/nginxinc/nginx-unprivileged:latest 
 
 LABEL Maintainer="pinpin <noname@microsoft.com>"
 LABEL Description="Pod installed with Kubectl - see Dockerfile at https://github.com/ezYakaEagle442/install-kubectl-from-pod/blob/main/Dockerfile"
@@ -49,7 +52,7 @@ RUN touch /tmp/nginx/nginx.pid
 #RUN echo "$(cat kubectl.sha256)  kubectl" | sha256sum --check
 
 COPY "kubectl" "/usr/local/bin/kubectl"
-RUN chmod +x "/usr/local/bin/kubectl"
+# RUN chmod +x "/usr/local/bin/kubectl"
 RUN kubectl version --client
 # /usr/local/bin/kubectl
 
@@ -66,5 +69,5 @@ RUN helm version
 
 # https://stackoverflow.com/questions/40358923/docker-nginx-disable-default-exposed-port-80
 # https://github.com/nginxinc/docker-nginx/blob/master/stable/debian/Dockerfile
-EXPOSE 1025
+EXPOSE ${NGINX_PORT}
 CMD ["nginx", "-g", "daemon off;"]

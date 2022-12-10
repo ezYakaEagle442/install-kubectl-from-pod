@@ -1,16 +1,15 @@
 apiVersion: v1
 kind: Service
 metadata:
-  creationTimestamp: null
   labels:
     app: k8s-ctl
   name: k8s-ctl
 spec:
   ports:
   - name: http
-    port: 1025
+    port: ${APP_PORT}
     protocol: TCP
-    targetPort: 1025
+    targetPort: ${APP_PORT}
   selector:
     app: k8s-ctl
   type: ClusterIP
