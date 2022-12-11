@@ -64,11 +64,8 @@ Go to [https://github.com/settings/tokens](https://github.com/settings/tokens) t
 With repo, workflow scope authorizations
 
 Test: 
-BAD : curl -s X -H POST "Authorization: $GHA_RUNNER_PAT" https://api.github.com/repos/${OWNER}/${REPO}/actions/runners/registration-token
-{
-  "message": "Must have admin rights to Repository.",
-  "documentation_url": "https://docs.github.com/rest/reference/actions#get-a-self-hosted-runner-for-a-repository"
-}
+curl -s -X POST -H "Authorization: token $GHA_RUNNER_PAT" "https://api.github.com/repos/${OWNER}/${REPO}/actions/runners/registration-token"
+
 curl -s -X POST -H "Authorization: Bearer $GHA_RUNNER_PAT" https://api.github.com/repos/${OWNER}/${REPO}/actions/runners/registration-token
 
 Local test
